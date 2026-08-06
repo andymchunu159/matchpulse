@@ -10,6 +10,7 @@ import StandingsTab from "@/components/match/StandingsTab";
 import VenueCard from "@/components/match/VenueCard";
 
 import { getMatchDetails } from "@/lib/match-details";
+import { getStandings } from "@/lib/football-server";
 
 interface Props {
   params: Promise<{
@@ -27,6 +28,11 @@ export default async function FixtureDetailsPage({
   if (!match) {
     notFound();
   }
+
+  const standings = await getStandings(
+    match.fixture.league.id,
+    match.fixture.league.season
+  );
 
   return (
     <main className="container mx-auto space-y-6 py-8">
@@ -57,9 +63,10 @@ export default async function FixtureDetailsPage({
             id: "lineups",
             label: "Lineups",
             content: (
-              <LineUpsTab
-                lineups={match.lineups}
-              />
+<LineUpsTab
+  fixture={match.fixture}
+  lineups={match.lineups}
+/>
             ),
           },
           {
@@ -67,7 +74,10 @@ export default async function FixtureDetailsPage({
             label: "Standings",
             content: (
               <StandingsTab
-                fixture={match.fixture}
+                standings={standings}
+                leagueId={match.fixture.league.id}
+                season={match.fixture.league.season}
+                leagueName={match.fixture.league.name}
               />
             ),
           },

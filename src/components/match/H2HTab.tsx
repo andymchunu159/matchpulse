@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import UnavailableCard from "@/components/common/UnavailableCard";
+
 interface Props {
   h2h: any[];
   homeTeamId: number;
@@ -14,23 +16,26 @@ export default function H2HTab({
 }: Props) {
   if (!h2h || h2h.length === 0) {
     return (
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6">
-        <h2 className="mb-6 text-xl font-bold text-white">
-          Head-to-Head
-        </h2>
-
-        <div className="rounded-2xl border border-dashed border-zinc-700 bg-zinc-950/40 p-10 text-center">
-          <p className="text-lg font-semibold text-white">
-            No Previous Meetings
-          </p>
-
-          <p className="mt-2 text-sm text-zinc-400">
-            Historical fixtures could not be found.
-          </p>
-        </div>
-      </section>
+      <UnavailableCard
+        title="🤝 Head-to-Head Unavailable"
+        description="Previous meetings between these teams are currently unavailable through MatchPulse. You can still view the latest head-to-head statistics online."
+        buttonText="View Head-to-Head Online"
+        searchQuery="Head-to-head football"
+      />
     );
   }
+
+  const firstMatch = h2h[0];
+
+  const homeTeamName =
+    firstMatch?.teams?.home?.id === homeTeamId
+      ? firstMatch.teams.home.name
+      : firstMatch?.teams.away?.name ?? "Home Team";
+
+  const awayTeamName =
+    firstMatch?.teams?.home?.id === awayTeamId
+      ? firstMatch.teams.home.name
+      : firstMatch?.teams.away?.name ?? "Away Team";
 
   let homeWins = 0;
   let awayWins = 0;
@@ -163,11 +168,11 @@ export default function H2HTab({
                     />
 
                     <span
-                      className={`${
+                      className={
                         homeWinner
                           ? "font-bold text-green-400"
                           : "text-white"
-                      }`}
+                      }
                     >
                       {match.teams.home.name}
                     </span>
@@ -179,11 +184,11 @@ export default function H2HTab({
 
                   <div className="flex items-center justify-end gap-3">
                     <span
-                      className={`${
+                      className={
                         awayWinner
                           ? "font-bold text-green-400"
                           : "text-white"
-                      }`}
+                      }
                     >
                       {match.teams.away.name}
                     </span>

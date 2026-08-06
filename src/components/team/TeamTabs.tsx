@@ -6,13 +6,15 @@ import OverviewTab from "./OverviewTab";
 import FixturesTab from "./FixturesTab";
 import ResultsTab from "./ResultsTab";
 import SquadTab from "./SquadTab";
-import VenueTab from "./VenueTab";
+
+import { Fixture } from "@/lib/football";
 
 interface Props {
   team: any;
   statistics: any;
   squad: any;
-  fixtures: any[];
+  upcomingFixtures?: Fixture[];
+  recentResults?: Fixture[];
 }
 
 const tabs = [
@@ -32,17 +34,14 @@ const tabs = [
     id: "squad",
     label: "Squad",
   },
-  {
-    id: "venue",
-    label: "Venue",
-  },
 ];
 
 export default function TeamTabs({
   team,
   statistics,
   squad,
-  fixtures,
+  upcomingFixtures = [],
+  recentResults = [],
 }: Props) {
   const [activeTab, setActiveTab] =
     useState("overview");
@@ -79,20 +78,32 @@ export default function TeamTabs({
       )}
 
       {activeTab === "fixtures" && (
-        <FixturesTab fixtures={fixtures} />
+        <FixturesTab
+          fixtures={upcomingFixtures}
+        />
       )}
 
       {activeTab === "results" && (
-        <ResultsTab fixtures={fixtures} />
+        <ResultsTab
+          fixtures={recentResults}
+        />
       )}
 
-      {activeTab === "squad" && (
-        <SquadTab squad={squad} />
-      )}
+      {activeTab === "squad" &&
+        (squad ? (
+          <SquadTab squad={squad} />
+        ) : (
+          <div className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-10 text-center">
+            <h2 className="text-2xl font-bold text-white">
+              Squad Unavailable
+            </h2>
 
-      {activeTab === "venue" && (
-        <VenueTab venue={team.venue} />
-      )}
+            <p className="mt-3 text-zinc-400">
+              Squad information is not
+              available for this team.
+            </p>
+          </div>
+        ))}
     </section>
   );
 }

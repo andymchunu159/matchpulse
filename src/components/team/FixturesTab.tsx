@@ -1,50 +1,38 @@
-import FixtureCard from "@/components/fixtures/FixtureCard";
+import TeamFixtureCard from "@/components/team/TeamFixtureCard";
+import UnavailableCard from "@/components/common/UnavailableCard";
+
+import { Fixture } from "@/lib/football";
 
 interface Props {
-  fixtures: any[];
+  fixtures: Fixture[];
 }
 
 export default function FixturesTab({
   fixtures,
 }: Props) {
-  const upcomingFixtures = fixtures.filter((fixture) => {
-    const status = fixture.fixture.status.short;
-
-    return [
-      "NS",
-      "TBD",
-      "PST",
-    ].includes(status);
-  });
-
-  if (upcomingFixtures.length === 0) {
-    return (
-      <div className="rounded-3xl border border-zinc-800 bg-zinc-900 p-8">
-        <h2 className="text-2xl font-bold text-white">
-          Upcoming Fixtures
-        </h2>
-
-        <p className="mt-4 text-zinc-400">
-          No upcoming fixtures.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <section className="space-y-4">
+    <div className="space-y-4">
       <h2 className="text-2xl font-bold text-white">
         Upcoming Fixtures
       </h2>
 
-      <div className="grid gap-3">
-        {upcomingFixtures.map((fixture) => (
-          <FixtureCard
-            key={fixture.fixture.id}
-            fixture={fixture}
-          />
-        ))}
-      </div>
-    </section>
+      {fixtures.length === 0 ? (
+        <UnavailableCard
+          title="📅 Upcoming Fixtures Unavailable"
+          description="Upcoming fixtures are currently unavailable from the MatchPulse data provider. You can still view the latest fixture schedule online."
+          buttonText="View Latest Fixtures"
+          searchQuery="football fixtures today"
+        />
+      ) : (
+        <div className="grid gap-3">
+          {fixtures.map((fixture) => (
+            <TeamFixtureCard
+              key={fixture.fixture.id}
+              fixture={fixture}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

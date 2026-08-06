@@ -1,28 +1,24 @@
 import Image from "next/image";
 
+import UnavailableCard from "@/components/common/UnavailableCard";
+
 interface Props {
   lineups: any[];
+  fixture: any;
 }
 
-export default function LineupsTab({ lineups }: Props) {
+export default function LineupsTab({
+  lineups,
+  fixture,
+}: Props) {
   if (!lineups || lineups.length < 2) {
     return (
-      <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6">
-        <h2 className="mb-6 text-2xl font-bold text-white">
-          Team Lineups
-        </h2>
-
-        <div className="rounded-2xl border border-dashed border-zinc-700 bg-zinc-950/40 p-10 text-center">
-          <p className="text-lg font-semibold text-white">
-            Lineups Unavailable
-          </p>
-
-          <p className="mt-2 text-sm text-zinc-400">
-            Official starting lineups are usually released around
-            60 minutes before kickoff.
-          </p>
-        </div>
-      </section>
+      <UnavailableCard
+        title="👥 Lineups Unavailable"
+        description="Official starting lineups are currently unavailable through MatchPulse. Team lineups are usually announced around 60 minutes before kickoff."
+        buttonText="View Team Lineups Online"
+        searchQuery={`${fixture.teams.home.name} vs ${fixture.teams.away.name} lineups`}
+      />
     );
   }
 
@@ -43,7 +39,11 @@ export default function LineupsTab({ lineups }: Props) {
   );
 }
 
-function TeamCard({ lineup }: { lineup: any }) {
+function TeamCard({
+  lineup,
+}: {
+  lineup: any;
+}) {
   return (
     <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950/60">
       {/* Header */}
@@ -90,66 +90,74 @@ function TeamCard({ lineup }: { lineup: any }) {
         </h4>
 
         <div className="space-y-2">
-          {lineup.startXI?.map(({ player }: any) => (
-            <div
-              key={player.id}
-              className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 transition hover:border-green-500/40"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-600 font-bold text-white">
-                  {player.number ?? "-"}
+          {lineup.startXI?.map(
+            ({ player }: any) => (
+              <div
+                key={player.id}
+                className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 transition hover:border-green-500/40"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-green-600 font-bold text-white">
+                    {player.number ?? "-"}
+                  </div>
+
+                  <div>
+                    <p className="font-medium text-white">
+                      {player.name}
+                    </p>
+
+                    <p className="text-xs text-zinc-500">
+                      {player.pos ?? "N/A"}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <p className="font-medium text-white">
-                    {player.name}
-                  </p>
-
-                  <p className="text-xs text-zinc-500">
-                    {player.pos ?? "N/A"}
-                  </p>
-                </div>
+                {player.captain && (
+                  <span className="rounded-full bg-yellow-500/20 px-3 py-1 text-xs font-semibold text-yellow-400">
+                    (C)
+                  </span>
+                )}
               </div>
-
-              {player.captain && (
-                <span className="rounded-full bg-yellow-500/20 px-3 py-1 text-xs font-semibold text-yellow-400">
-                  (C)
-                </span>
-              )}
-            </div>
-          ))}
+            )
+          )}
         </div>
       </div>
 
       {/* Bench */}
 
-      {lineup.substitutes?.length > 0 && (
+      {lineup.substitutes?.length >
+        0 && (
         <div className="border-t border-zinc-800 p-5">
           <h4 className="mb-4 text-sm font-bold uppercase tracking-widest text-zinc-400">
-            Substitutes ({lineup.substitutes.length})
+            Substitutes (
+            {lineup.substitutes.length})
           </h4>
 
           <div className="space-y-2">
-            {lineup.substitutes.map(({ player }: any) => (
-              <div
-                key={player.id}
-                className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3 transition hover:border-zinc-700"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-700 text-sm font-bold text-white">
-                    {player.number ?? "-"}
+            {lineup.substitutes.map(
+              ({ player }: any) => (
+                <div
+                  key={player.id}
+                  className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 px-4 py-3 transition hover:border-zinc-700"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-700 text-sm font-bold text-white">
+                      {player.number ??
+                        "-"}
+                    </div>
+
+                    <span className="font-medium text-white">
+                      {player.name}
+                    </span>
                   </div>
 
-                  <span className="font-medium text-white">
-                    {player.name}
+                  <span className="text-xs text-zinc-500">
+                    {player.pos ??
+                      "N/A"}
                   </span>
                 </div>
-
-                <span className="text-xs text-zinc-500">
-                  {player.pos ?? "N/A"}
-                </span>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
       )}

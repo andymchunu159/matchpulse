@@ -5,7 +5,7 @@ import {
   API_DEFAULT_SEASON,
 } from "@/lib/config";
 
-import { getStandings } from "@/lib/football-server";
+import { getStandings } from "@/lib/standings-server";
 
 interface Props {
   searchParams: Promise<{

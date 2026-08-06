@@ -5,8 +5,10 @@ import StandingsContent from "./StandingsContent";
 import LeagueSelector from "./LeagueSelector";
 import SeasonSelector from "./SeasonSelector";
 
+import { LEAGUES } from "@/lib/leagues";
+
 interface Props {
-  initialStandings: any;
+  initialStandings: any[];
   league: number;
   season: number;
 }
@@ -16,10 +18,16 @@ export default function StandingsClient({
   league,
   season,
 }: Props) {
+  const selectedLeague =
+    LEAGUES.find((l) => l.id === league);
+
   return (
     <>
       <StandingsHeader
-        leagueName={initialStandings?.league?.name}
+        leagueName={
+          selectedLeague?.name ??
+          "League Standings"
+        }
         season={season}
       >
         <div className="grid gap-4 md:grid-cols-[1fr_auto]">
@@ -37,6 +45,8 @@ export default function StandingsClient({
 
       <StandingsContent
         standings={initialStandings}
+        leagueId={league}
+        season={season}
       />
     </>
   );

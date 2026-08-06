@@ -7,9 +7,14 @@ import OverviewTab from "@/components/match/OverviewTab";
 import EventsTab from "@/components/match/EventsTab";
 import LineupsTab from "@/components/match/LineUpsTab";
 import PlayerStatsTab from "@/components/match/PlayerStatsTab";
+import StandingsTab from "@/components/match/StandingsTab";
 import H2HTab from "@/components/match/H2HTab";
+import VenueCard from "@/components/match/VenueCard";
 
-import { getFixture } from "@/lib/football-server";
+import {
+  getFixture,
+  getStandings,
+} from "@/lib/football-server";
 
 interface Props {
   params: Promise<{
@@ -27,6 +32,11 @@ export default async function MatchDetailsPage({
   if (!match) {
     notFound();
   }
+
+  const standings = await getStandings(
+    match.league.id,
+    match.league.season
+  );
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-8">
@@ -64,6 +74,7 @@ export default async function MatchDetailsPage({
               label: "Lineups",
               content: (
                 <LineupsTab
+                  fixture={match.fixture}  
                   lineups={match.lineups}
                 />
               ),
@@ -78,13 +89,38 @@ export default async function MatchDetailsPage({
               ),
             },
             {
+              id: "standings",
+              label: "Standings",
+              content: (
+                <StandingsTab
+                  standings={standings}
+                  leagueId={match.league.id}
+                  season={match.league.season}
+                  leagueName={match.league.name}
+                />
+              ),
+            },
+            {
               id: "h2h",
               label: "H2H",
               content: (
                 <H2HTab
                   h2h={match.h2h}
-                  homeTeamId={match.teams.home.id}
-                  awayTeamId={match.teams.away.id}
+                  homeTeamId={
+                    match.teams.home.id
+                  }
+                  awayTeamId={
+                    match.teams.away.id
+                  }
+                />
+              ),
+            },
+            {
+              id: "venue",
+              label: "Venue",
+              content: (
+                <VenueCard
+                  fixture={match}
                 />
               ),
             },

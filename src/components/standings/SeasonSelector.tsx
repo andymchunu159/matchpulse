@@ -4,7 +4,6 @@ import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { AVAILABLE_SEASONS } from "@/lib/config";
 import { cn } from "@/lib/utils";
 
 import {
@@ -35,6 +34,13 @@ export default function SeasonSelector({
 
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const currentYear = new Date().getFullYear();
+
+  const seasons = Array.from(
+    { length: 8 },
+    (_, index) => currentYear - index
+  );
 
   function selectSeason(year: number) {
     const params = new URLSearchParams(
@@ -72,7 +78,7 @@ export default function SeasonSelector({
             </CommandEmpty>
 
             <CommandGroup>
-              {AVAILABLE_SEASONS.map((year) => (
+              {seasons.map((year) => (
                 <CommandItem
                   key={year}
                   value={String(year)}

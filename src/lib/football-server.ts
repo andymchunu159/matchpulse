@@ -1,4 +1,9 @@
-import { footballFetch, Fixture } from "@/lib/football";
+import {
+  footballFetch,
+  Fixture,
+  ApiResponse,
+} from "@/lib/football";
+
 import { getSupportedStandingsSeason } from "@/lib/season";
 
 export type FixtureResponse = Fixture;
@@ -6,9 +11,10 @@ export type FixtureResponse = Fixture;
 export async function getFixtures(
   date: string
 ): Promise<FixtureResponse[]> {
-  const response = await footballFetch(
-    `/fixtures?date=${date}`
-  );
+  const response =
+    await footballFetch<ApiResponse<FixtureResponse[]>>(
+      `/fixtures?date=${date}`
+    );
 
   return response.response ?? [];
 }
@@ -16,9 +22,10 @@ export async function getFixtures(
 export async function getResults(
   date: string
 ): Promise<FixtureResponse[]> {
-  const response = await footballFetch(
-    `/fixtures?date=${date}&status=FT`
-  );
+  const response =
+    await footballFetch<ApiResponse<FixtureResponse[]>>(
+      `/fixtures?date=${date}&status=FT`
+    );
 
   return response.response ?? [];
 }
@@ -30,14 +37,20 @@ export async function getStandings(
   const supportedSeason =
     getSupportedStandingsSeason(season);
 
-  const response = await footballFetch(
-    `/standings?league=${league}&season=${supportedSeason}`
-  );
+  const response =
+    await footballFetch<ApiResponse<any[]>>(
+      `/standings?league=${league}&season=${supportedSeason}`
+    );
 
-  return response.response?.[0] ?? null;
+  return (
+    response.response?.[0]?.league
+      ?.standings?.[0] ?? []
+  );
 }
 
-export async function getFixture(id: string) {
+export async function getFixture(
+  id: string
+) {
   const [
     fixtureData,
     statisticsData,
@@ -45,14 +58,29 @@ export async function getFixture(id: string) {
     lineupsData,
     playersData,
   ] = await Promise.all([
-    footballFetch(`/fixtures?id=${id}`),
-    footballFetch(`/fixtures/statistics?fixture=${id}`),
-    footballFetch(`/fixtures/events?fixture=${id}`),
-    footballFetch(`/fixtures/lineups?fixture=${id}`),
-    footballFetch(`/fixtures/players?fixture=${id}`),
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures?id=${id}`
+    ),
+
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures/statistics?fixture=${id}`
+    ),
+
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures/events?fixture=${id}`
+    ),
+
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures/lineups?fixture=${id}`
+    ),
+
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures/players?fixture=${id}`
+    ),
   ]);
 
-  const fixture = fixtureData.response?.[0];
+  const fixture =
+    fixtureData.response?.[0];
 
   if (!fixture) {
     return null;
@@ -60,14 +88,24 @@ export async function getFixture(id: string) {
 
   return {
     ...fixture,
-    statistics: statisticsData.response ?? [],
-    events: eventsData.response ?? [],
-    lineups: lineupsData.response ?? [],
-    players: playersData.response ?? [],
+
+    statistics:
+      statisticsData.response ?? [],
+
+    events:
+      eventsData.response ?? [],
+
+    lineups:
+      lineupsData.response ?? [],
+
+    players:
+      playersData.response ?? [],
   };
 }
 
-export async function getMatchDetails(id: string) {
+export async function getMatchDetails(
+  id: string
+) {
   const [
     fixtureData,
     statisticsData,
@@ -76,34 +114,64 @@ export async function getMatchDetails(id: string) {
     playersData,
     h2hData,
   ] = await Promise.all([
-    footballFetch(`/fixtures?id=${id}`),
-    footballFetch(`/fixtures/statistics?fixture=${id}`),
-    footballFetch(`/fixtures/events?fixture=${id}`),
-    footballFetch(`/fixtures/lineups?fixture=${id}`),
-    footballFetch(`/fixtures/players?fixture=${id}`),
-    footballFetch(`/fixtures/headtohead?h2h=${id}`).catch(() => ({
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures?id=${id}`
+    ),
+
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures/statistics?fixture=${id}`
+    ),
+
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures/events?fixture=${id}`
+    ),
+
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures/lineups?fixture=${id}`
+    ),
+
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures/players?fixture=${id}`
+    ),
+
+    footballFetch<ApiResponse<any[]>>(
+      `/fixtures/headtohead?h2h=${id}`
+    ).catch(() => ({
       response: [],
     })),
   ]);
 
-  const fixture = fixtureData.response?.[0];
+  const fixture =
+    fixtureData.response?.[0];
 
   if (!fixture) {
     return null;
   }
 
-  const standings = await getStandings(
-    fixture.league.id,
-    fixture.league.season
-  );
+  const standings =
+    await getStandings(
+      fixture.league.id,
+      fixture.league.season
+    );
 
   return {
     fixture,
-    statistics: statisticsData.response ?? [],
-    events: eventsData.response ?? [],
-    lineups: lineupsData.response ?? [],
-    players: playersData.response ?? [],
+
+    statistics:
+      statisticsData.response ?? [],
+
+    events:
+      eventsData.response ?? [],
+
+    lineups:
+      lineupsData.response ?? [],
+
+    players:
+      playersData.response ?? [],
+
     standings,
-    h2h: h2hData.response ?? [],
+
+    h2h:
+      h2hData.response ?? [],
   };
 }

@@ -1,52 +1,52 @@
+"use client";
+
 import StandingsTable from "./StandingsTable";
 import QualificationLegend from "./QualificationLegend";
 
+import UnavailableCard from "@/components/common/UnavailableCard";
+
+import { LEAGUES } from "@/lib/leagues";
+
 interface Props {
-  standings: any;
+  standings: any[];
+  leagueId: number;
+  season: number;
 }
 
 export default function StandingsContent({
   standings,
+  leagueId,
+  season,
 }: Props) {
-  const league = standings?.league;
-  const tables = league?.standings;
+  const league = LEAGUES.find(
+    (item) => item.id === leagueId
+  );
 
-  if (!Array.isArray(tables) || tables.length === 0) {
+  if (
+    !Array.isArray(standings) ||
+    standings.length === 0
+  ) {
     return (
-      <div className="rounded-3xl border border-white/10 bg-zinc-900 px-6 py-20">
-        <p className="text-center text-base text-zinc-400">
-          No standings are available for this league and season.
-        </p>
-      </div>
+    <UnavailableCard
+      title="🏆 League Standings Unavailable"
+      description={`League standings for ${
+        league?.name ?? "this competition"
+      } are currently unavailable from the MatchPulse data provider. You can still view the latest league table online.`}
+      buttonText="View Latest Standings"
+      searchQuery={`${
+        league?.name ?? "Football"
+      } standings ${season}`}
+    />
     );
   }
 
   return (
     <div className="space-y-8">
-      {tables.map(
-        (
-          table: any[],
-          index: number
-        ) => (
-          <section
-            key={index}
-            className="space-y-6"
-          >
-            {tables.length > 1 && (
-              <h2 className="text-xl font-bold text-white">
-                {table[0]?.group ??
-                  `Group ${index + 1}`}
-              </h2>
-            )}
-
-            <StandingsTable
-              standings={table}
-              leagueId={league.id}
-              season={league.season}
-            />
-          </section>
-        )
-      )}
+      <StandingsTable
+        standings={standings}
+        leagueId={leagueId}
+        season={season}
+      />
 
       <QualificationLegend />
     </div>

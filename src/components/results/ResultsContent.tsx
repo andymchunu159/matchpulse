@@ -4,6 +4,7 @@ import { groupMatchesByLeague } from "@/lib/groupMatches";
 
 interface Props {
   matches: any[];
+  selectedDate: string;
 }
 
 export default function ResultsContent({

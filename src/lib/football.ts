@@ -16,7 +16,7 @@ export interface Fixture {
       second: number | null;
     };
     venue: {
-      id: number | null;
+      id: number |null;
       name: string | null;
       city: string | null;
     };
@@ -45,6 +45,7 @@ export interface Fixture {
       logo: string;
       winner: boolean | null;
     };
+
     away: {
       id: number;
       name: string;
@@ -63,14 +64,17 @@ export interface Fixture {
       home: number | null;
       away: number | null;
     };
+
     fulltime: {
       home: number | null;
-      away: number |null;
+      away: number | null;
     };
+
     extratime: {
       home: number | null;
       away: number | null;
     };
+
     penalty: {
       home: number | null;
       away: number | null;
@@ -78,22 +82,34 @@ export interface Fixture {
   };
 }
 
+export interface ApiResponse<T> {
+  response: T;
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                API Helper                                  */
 /* -------------------------------------------------------------------------- */
 
-export async function footballFetch(endpoint: string) {
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: {
-      "x-apisports-key": process.env.API_FOOTBALL_KEY!,
-    },
-    next: {
-      revalidate: 30,
-    },
-  });
+export async function footballFetch<T = any>(
+  endpoint: string
+): Promise<T> {
+  const response = await fetch(
+    `${BASE_URL}${endpoint}`,
+    {
+      headers: {
+        "x-apisports-key":
+          process.env.API_FOOTBALL_KEY!,
+      },
+      next: {
+        revalidate: 30,
+      },
+    }
+  );
 
   if (!response.ok) {
-    throw new Error(`Football API Error: ${response.status}`);
+    throw new Error(
+      `Football API Error: ${response.status}`
+    );
   }
 
   return response.json();
