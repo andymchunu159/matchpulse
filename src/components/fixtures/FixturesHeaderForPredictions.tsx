@@ -13,30 +13,53 @@ interface Props {
   basePath?: string;
 }
 
-export default function FixturesHeader({
+function getTodayISO() {
+  return new Date().toISOString().split("T")[0];
+}
+
+export default function FixturesHeaderForPredictions({
   date,
-  basePath = "/fixtures",
+  basePath = "/predictions",
 }: Props) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const todayISO = getTodayISO();
+
+  // Never allow the Predictions module to display a past date.
+  const effectiveDate =
+    date < todayISO ? todayISO : date;
+
   function navigateToDate(value: string) {
+    // Hard protection against navigating to a past date.
+    if (value < todayISO) {
+      value = todayISO;
+    }
+
     router.push(`${basePath}?date=${value}`);
   }
 
   function changeDate(days: number) {
-    const current = new Date(date);
+    const current = new Date(
+      `${effectiveDate}T00:00:00`
+    );
+
     current.setDate(current.getDate() + days);
 
-    navigateToDate(
-      current.toISOString().split("T")[0]
-    );
+    const nextDate = current
+      .toISOString()
+      .split("T")[0];
+
+    // Never allow previous dates.
+    if (nextDate < todayISO) {
+      return;
+    }
+
+    navigateToDate(nextDate);
   }
 
   function goToday() {
-    navigateToDate(
-      new Date().toISOString().split("T")[0]
-    );
+    navigateToDate(todayISO);
   }
 
   function openCalendar() {
@@ -54,30 +77,38 @@ export default function FixturesHeader({
     }
   }
 
-  const formattedDate = new Date(date).toLocaleDateString(
-    "en-GB",
-    {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }
-  );
+  const formattedDate = new Date(
+    `${effectiveDate}T00:00:00`
+  ).toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const isToday = effectiveDate === todayISO;
 
   return (
     <>
-      {/* Hidden Native Date Picker */}
+      {/* ====================================================
+          Hidden Native Date Picker
+          ==================================================== */}
+
       <input
         ref={inputRef}
         type="date"
-        value={date}
+        value={effectiveDate}
+        min={todayISO}
         onChange={(e) =>
           navigateToDate(e.target.value)
         }
         className="pointer-events-none fixed left-0 top-0 h-0 w-0 opacity-0"
       />
 
-      {/* Header */}
+      {/* ====================================================
+          Header
+          ==================================================== */}
+
       <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-900 via-zinc-900 to-emerald-950/20 p-6">
 
         {/* Glow */}
@@ -87,7 +118,7 @@ export default function FixturesHeader({
         <div className="relative flex items-start justify-between">
           <div>
             <h1 className="text-4xl font-black tracking-tight text-white">
-              Fixtures
+              Predictions
             </h1>
 
             <p className="mt-2 text-zinc-400">
@@ -99,7 +130,7 @@ export default function FixturesHeader({
           <button
             type="button"
             onClick={openCalendar}
-            aria-label="Select date"
+            aria-label="Select prediction date"
             className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 transition-all duration-300 hover:scale-105 hover:border-green-500 hover:bg-green-500/10"
           >
             <CalendarDays
@@ -109,14 +140,23 @@ export default function FixturesHeader({
           </button>
         </div>
 
-        {/* Date Navigation */}
+        {/* ==================================================
+            Date Navigation
+            ================================================== */}
+
         <div className="relative mt-8 flex items-center justify-between">
+
           {/* Previous Day */}
           <button
             type="button"
             onClick={() => changeDate(-1)}
+            disabled={isToday}
             aria-label="Previous day"
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 transition-all duration-300 hover:scale-110 hover:border-green-500 hover:bg-green-500/10"
+            className={`flex h-12 w-12 items-center justify-center rounded-full border transition-all duration-300 ${
+              isToday
+                ? "cursor-not-allowed border-white/5 bg-white/[0.02] opacity-30"
+                : "border-white/10 bg-white/5 hover:scale-110 hover:border-green-500 hover:bg-green-500/10"
+            }`}
           >
             <ChevronLeft
               size={22}
@@ -124,7 +164,7 @@ export default function FixturesHeader({
             />
           </button>
 
-          {/* Today */}
+          {/* Today — ALWAYS GREEN */}
           <button
             type="button"
             onClick={goToday}

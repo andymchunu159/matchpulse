@@ -26,8 +26,7 @@ export default async function TeamPage({
   searchParams,
 }: Props) {
   const { teamId } = await params;
-  const { league, season } =
-    await searchParams;
+  const { league, season } = await searchParams;
 
   const id = Number(teamId);
 
@@ -107,12 +106,9 @@ export default async function TeamPage({
         team={team}
         statistics={statistics}
         squad={squad}
-        upcomingFixtures={
-          upcomingFixtures
-        }
-        recentResults={
-          recentResults
-        }
+        season={seasonYear}
+        upcomingFixtures={upcomingFixtures}
+        recentResults={recentResults}
       />
     </main>
   );

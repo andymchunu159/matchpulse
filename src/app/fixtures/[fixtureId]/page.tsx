@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import MatchHero from "@/components/match/MatchHero";
@@ -34,9 +35,31 @@ export default async function FixtureDetailsPage({
     match.fixture.league.season
   );
 
+  const fixtureStatus =
+    match.fixture.fixture.status.short;
+
+  const predictionAvailable =
+    fixtureStatus === "NS";
+
   return (
     <main className="container mx-auto space-y-6 py-8">
       <MatchHero fixture={match.fixture} />
+
+      {/* AI Prediction */}
+      <div className="flex justify-center">
+        {predictionAvailable ? (
+          <Link
+            href={`/predictions/${fixtureId}`}
+            className="inline-flex items-center gap-2 rounded-xl bg-green-500 px-6 py-3 font-semibold text-black transition hover:bg-green-400"
+          >
+            🔮 AI Prediction
+          </Link>
+        ) : (
+          <div className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl bg-zinc-800 px-6 py-3 font-semibold text-zinc-500">
+            🔒 Prediction Unavailable
+          </div>
+        )}
+      </div>
 
       <MatchTabs
         tabs={[
@@ -63,10 +86,11 @@ export default async function FixtureDetailsPage({
             id: "lineups",
             label: "Lineups",
             content: (
-<LineUpsTab
-  fixture={match.fixture}
-  lineups={match.lineups}
-/>
+              <LineUpsTab
+                lineups={match.lineups}
+                homeTeamName={match.fixture.teams.home.name}
+                awayTeamName={match.fixture.teams.away.name}
+              />
             ),
           },
           {
@@ -89,6 +113,8 @@ export default async function FixtureDetailsPage({
                 h2h={match.h2h}
                 homeTeamId={match.fixture.teams.home.id}
                 awayTeamId={match.fixture.teams.away.id}
+                homeTeamName={match.fixture.teams.home.name}
+                awayTeamName={match.fixture.teams.away.name}
               />
             ),
           },

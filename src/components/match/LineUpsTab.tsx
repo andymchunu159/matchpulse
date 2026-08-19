@@ -4,20 +4,22 @@ import UnavailableCard from "@/components/common/UnavailableCard";
 
 interface Props {
   lineups: any[];
-  fixture: any;
+  homeTeamName: string;
+  awayTeamName: string;
 }
 
 export default function LineupsTab({
   lineups,
-  fixture,
+  homeTeamName,
+  awayTeamName,
 }: Props) {
   if (!lineups || lineups.length < 2) {
     return (
       <UnavailableCard
         title="👥 Lineups Unavailable"
-        description="Official starting lineups are currently unavailable through MatchPulse. Team lineups are usually announced around 60 minutes before kickoff."
+        description="Official starting lineups are currently unavailable through MatchPulse. You can still view the lineups online."
         buttonText="View Team Lineups Online"
-        searchQuery={`${fixture.teams.home.name} vs ${fixture.teams.away.name} lineups`}
+        searchQuery={`${homeTeamName} vs ${awayTeamName} lineups`}
       />
     );
   }
@@ -25,8 +27,8 @@ export default function LineupsTab({
   const [home, away] = lineups;
 
   return (
-    <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6">
-      <h2 className="mb-8 text-2xl font-bold text-white">
+    <section>
+      <h2 className="mb-6 text-2xl font-bold">
         Team Lineups
       </h2>
 
@@ -125,12 +127,10 @@ function TeamCard({
 
       {/* Bench */}
 
-      {lineup.substitutes?.length >
-        0 && (
+      {lineup.substitutes?.length > 0 && (
         <div className="border-t border-zinc-800 p-5">
           <h4 className="mb-4 text-sm font-bold uppercase tracking-widest text-zinc-400">
-            Substitutes (
-            {lineup.substitutes.length})
+            Substitutes ({lineup.substitutes.length})
           </h4>
 
           <div className="space-y-2">
@@ -142,8 +142,7 @@ function TeamCard({
                 >
                   <div className="flex items-center gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-700 text-sm font-bold text-white">
-                      {player.number ??
-                        "-"}
+                      {player.number ?? "-"}
                     </div>
 
                     <span className="font-medium text-white">
@@ -152,8 +151,7 @@ function TeamCard({
                   </div>
 
                   <span className="text-xs text-zinc-500">
-                    {player.pos ??
-                      "N/A"}
+                    {player.pos ?? "N/A"}
                   </span>
                 </div>
               )

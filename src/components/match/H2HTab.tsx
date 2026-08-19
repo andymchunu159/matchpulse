@@ -7,35 +7,27 @@ interface Props {
   h2h: any[];
   homeTeamId: number;
   awayTeamId: number;
+  homeTeamName: string;
+  awayTeamName: string;
 }
 
 export default function H2HTab({
   h2h,
   homeTeamId,
   awayTeamId,
+  homeTeamName,
+  awayTeamName,
 }: Props) {
   if (!h2h || h2h.length === 0) {
     return (
       <UnavailableCard
         title="🤝 Head-to-Head Unavailable"
-        description="Previous meetings between these teams are currently unavailable through MatchPulse. You can still view the latest head-to-head statistics online."
-        buttonText="View Head-to-Head Online"
-        searchQuery="Head-to-head football"
+        description="Head-to-head statistics are currently unavailable from the MatchPulse data provider. You can still view the latest H2H record online."
+        buttonText="View H2H Results"
+        searchQuery={`${homeTeamName} vs ${awayTeamName} last 10 games head to head results`}
       />
     );
   }
-
-  const firstMatch = h2h[0];
-
-  const homeTeamName =
-    firstMatch?.teams?.home?.id === homeTeamId
-      ? firstMatch.teams.home.name
-      : firstMatch?.teams.away?.name ?? "Home Team";
-
-  const awayTeamName =
-    firstMatch?.teams?.home?.id === awayTeamId
-      ? firstMatch.teams.home.name
-      : firstMatch?.teams.away?.name ?? "Away Team";
 
   let homeWins = 0;
   let awayWins = 0;
@@ -69,8 +61,8 @@ export default function H2HTab({
   });
 
   return (
-    <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6">
-      <h2 className="mb-8 text-xl font-bold text-white">
+    <section>
+      <h2 className="mb-6 text-2xl font-bold">
         Head-to-Head
       </h2>
 

@@ -39,8 +39,8 @@ export default async function MatchDetailsPage({
   );
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-8">
-      <div className="space-y-10">
+    <main className="min-h-screen bg-black text-white">
+      <div className="mx-auto max-w-7xl space-y-8 px-4 py-6">
         <MatchHero fixture={match} />
 
         <MatchMomentum
@@ -74,8 +74,9 @@ export default async function MatchDetailsPage({
               label: "Lineups",
               content: (
                 <LineupsTab
-                  fixture={match.fixture}  
                   lineups={match.lineups}
+                  homeTeamName={match.teams.home.name}
+                  awayTeamName={match.teams.away.name}
                 />
               ),
             },
@@ -85,6 +86,9 @@ export default async function MatchDetailsPage({
               content: (
                 <PlayerStatsTab
                   players={match.players}
+                  homeTeamName={match.teams.home.name}
+                  awayTeamName={match.teams.away.name}
+                  season={match.league.season}
                 />
               ),
             },
@@ -106,12 +110,10 @@ export default async function MatchDetailsPage({
               content: (
                 <H2HTab
                   h2h={match.h2h}
-                  homeTeamId={
-                    match.teams.home.id
-                  }
-                  awayTeamId={
-                    match.teams.away.id
-                  }
+                  homeTeamId={match.teams.home.id}
+                  awayTeamId={match.teams.away.id}
+                  homeTeamName={match.teams.home.name}
+                  awayTeamName={match.teams.away.name}
                 />
               ),
             },

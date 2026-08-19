@@ -7,12 +7,13 @@ import FixturesTab from "./FixturesTab";
 import ResultsTab from "./ResultsTab";
 import SquadTab from "./SquadTab";
 
-import { Fixture } from "@/lib/football";
+import type { Fixture } from "@/lib/football";
 
 interface Props {
   team: any;
   statistics: any;
   squad: any;
+  season: number;
   upcomingFixtures?: Fixture[];
   recentResults?: Fixture[];
 }
@@ -40,6 +41,7 @@ export default function TeamTabs({
   team,
   statistics,
   squad,
+  season,
   upcomingFixtures = [],
   recentResults = [],
 }: Props) {
@@ -47,7 +49,7 @@ export default function TeamTabs({
     useState("overview");
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-8">
       {/* Tabs */}
 
       <div className="flex flex-wrap gap-3">
@@ -80,6 +82,8 @@ export default function TeamTabs({
       {activeTab === "fixtures" && (
         <FixturesTab
           fixtures={upcomingFixtures}
+          teamName={team.team.name}
+          season={season}
         />
       )}
 

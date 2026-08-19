@@ -2,6 +2,9 @@ import UnavailableCard from "@/components/common/UnavailableCard";
 
 interface Props {
   players: any[];
+  homeTeamName: string;
+  awayTeamName: string;
+  season: number;
 }
 
 function getStat(player: any, type: string) {
@@ -14,21 +17,24 @@ function getStat(player: any, type: string) {
 
 export default function PlayerStatsTab({
   players,
+  homeTeamName,
+  awayTeamName,
+  season,
 }: Props) {
   if (!players || players.length === 0) {
     return (
       <UnavailableCard
         title="👤 Player Statistics Unavailable"
-        description="Detailed player statistics are currently unavailable from the MatchPulse data provider. You can still view the latest player statistics online."
+        description="Player statistics are currently unavailable from the MatchPulse data provider. You can still view the latest player statistics online."
         buttonText="View Player Statistics"
-        searchQuery="football player statistics today"
+        searchQuery={`${homeTeamName} & ${awayTeamName} player stats top scorers assists appearances ${season}`}
       />
     );
   }
 
   return (
-    <section className="rounded-3xl border border-zinc-800 bg-zinc-900/70 p-6">
-      <h2 className="mb-8 text-xl font-bold text-white">
+    <section>
+      <h2 className="mb-6 text-2xl font-bold">
         Player Statistics
       </h2>
 
@@ -101,10 +107,7 @@ export default function PlayerStatsTab({
                         Shots
                       </p>
                       <p className="font-bold text-white">
-                        {getStat(
-                          player,
-                          "Total Shots"
-                        )}
+                        {getStat(player, "Total Shots")}
                       </p>
                     </div>
 
@@ -113,10 +116,7 @@ export default function PlayerStatsTab({
                         Pass Accuracy
                       </p>
                       <p className="font-bold text-white">
-                        {getStat(
-                          player,
-                          "Passes %"
-                        )}
+                        {getStat(player, "Passes %")}
                       </p>
                     </div>
 
@@ -125,10 +125,7 @@ export default function PlayerStatsTab({
                         Tackles
                       </p>
                       <p className="font-bold text-white">
-                        {getStat(
-                          player,
-                          "Tackles"
-                        )}
+                        {getStat(player, "Tackles")}
                       </p>
                     </div>
 
@@ -137,10 +134,7 @@ export default function PlayerStatsTab({
                         Duels Won
                       </p>
                       <p className="font-bold text-white">
-                        {getStat(
-                          player,
-                          "Duels Won"
-                        )}
+                        {getStat(player, "Duels Won")}
                       </p>
                     </div>
                   </div>

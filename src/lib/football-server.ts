@@ -8,6 +8,23 @@ import { getSupportedStandingsSeason } from "@/lib/season";
 
 export type FixtureResponse = Fixture;
 
+/**
+ * ============================================================
+ * ALL FIXTURES
+ * ============================================================
+ *
+ * Returns every fixture for the requested date:
+ * - NS  = Not Started
+ * - 1H  = First Half
+ * - HT  = Half Time
+ * - 2H  = Second Half
+ * - FT  = Full Time
+ * - AET = After Extra Time
+ * - PEN = Penalties
+ * - etc.
+ *
+ * Used by the general Fixtures module.
+ */
 export async function getFixtures(
   date: string
 ): Promise<FixtureResponse[]> {
@@ -19,6 +36,37 @@ export async function getFixtures(
   return response.response ?? [];
 }
 
+/**
+ * ============================================================
+ * UPCOMING FIXTURES
+ * ============================================================
+ *
+ * Used specifically by the Predictions module.
+ *
+ * Only fixtures that have NOT started are returned.
+ *
+ * NS = Not Started
+ *
+ * Live and completed fixtures are excluded.
+ */
+export async function getUpcomingFixtures(
+  date: string
+): Promise<FixtureResponse[]> {
+  const fixtures = await getFixtures(date);
+
+  return fixtures.filter(
+    (fixture) =>
+      fixture.fixture.status.short === "NS"
+  );
+}
+
+/**
+ * ============================================================
+ * RESULTS
+ * ============================================================
+ *
+ * Returns completed fixtures for the requested date.
+ */
 export async function getResults(
   date: string
 ): Promise<FixtureResponse[]> {
@@ -30,6 +78,11 @@ export async function getResults(
   return response.response ?? [];
 }
 
+/**
+ * ============================================================
+ * STANDINGS
+ * ============================================================
+ */
 export async function getStandings(
   league: number,
   season: number
@@ -48,6 +101,17 @@ export async function getStandings(
   );
 }
 
+/**
+ * ============================================================
+ * SINGLE FIXTURE
+ * ============================================================
+ *
+ * Fetches a fixture together with:
+ * - Statistics
+ * - Events
+ * - Lineups
+ * - Players
+ */
 export async function getFixture(
   id: string
 ) {
@@ -103,6 +167,22 @@ export async function getFixture(
   };
 }
 
+/**
+ * ============================================================
+ * MATCH DETAILS
+ * ============================================================
+ *
+ * Used by the Fixture Details module.
+ *
+ * Includes:
+ * - Fixture
+ * - Statistics
+ * - Events / Timeline
+ * - Lineups
+ * - Players
+ * - Standings
+ * - Head-to-Head
+ */
 export async function getMatchDetails(
   id: string
 ) {
