@@ -1,9 +1,13 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import FixturesHeaderForPredictions from "@/components/fixtures/FixturesHeaderForPredictions";
 import DateStripForPredictions from "@/components/fixtures/DateStripForPredictions";
 
 import { getUpcomingFixtures } from "@/lib/football-server";
+
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 interface Props {
   searchParams: Promise<{
@@ -18,6 +22,48 @@ function getTodayISO() {
 export default async function PredictionsPage({
   searchParams,
 }: Props) {
+  // ============================================================
+  // AUTHENTICATION
+  // ============================================================
+
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch {
+            // Cookie writes may not be available in some
+            // Server Component contexts.
+            // Proxy handles session refreshes.
+          }
+        },
+      },
+    },
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login?redirect=/predictions");
+  }
+
+  // ============================================================
+  // DATE LOGIC
+  // ============================================================
+
   const params = await searchParams;
 
   const today = getTodayISO();
@@ -95,6 +141,7 @@ export default async function PredictionsPage({
         <section className="space-y-4">
 
           {/* Section Heading */}
+
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-white">
@@ -115,6 +162,7 @@ export default async function PredictionsPage({
           </div>
 
           {/* Fixture Cards */}
+
           <div className="grid gap-4">
             {upcomingFixtures.map((fixture) => (
               <Link
@@ -123,6 +171,7 @@ export default async function PredictionsPage({
                 className="group rounded-2xl border border-zinc-800 bg-zinc-900 p-5 transition-all duration-300 hover:border-green-500 hover:bg-zinc-800"
               >
                 {/* Competition */}
+
                 <div className="flex items-center gap-3">
                   {fixture.league.logo && (
                     <img
@@ -144,9 +193,11 @@ export default async function PredictionsPage({
                 </div>
 
                 {/* Teams */}
+
                 <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
 
                   {/* Home */}
+
                   <div className="flex items-center gap-3">
                     {fixture.teams.home.logo && (
                       <img
@@ -162,6 +213,7 @@ export default async function PredictionsPage({
                   </div>
 
                   {/* VS */}
+
                   <div className="text-center">
                     <span className="text-sm font-bold text-zinc-500">
                       VS
@@ -169,7 +221,7 @@ export default async function PredictionsPage({
 
                     <p className="mt-1 text-xs text-zinc-600">
                       {new Date(
-                        fixture.fixture.date
+                        fixture.fixture.date,
                       ).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -178,6 +230,7 @@ export default async function PredictionsPage({
                   </div>
 
                   {/* Away */}
+
                   <div className="flex items-center justify-end gap-3">
                     <span className="text-right font-semibold text-white">
                       {fixture.teams.away.name}
@@ -191,10 +244,13 @@ export default async function PredictionsPage({
                       />
                     )}
                   </div>
+
                 </div>
 
                 {/* Footer */}
+
                 <div className="mt-6 flex items-center justify-between border-t border-zinc-800 pt-4">
+
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-green-500/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-green-400">
                       Upcoming
@@ -208,6 +264,7 @@ export default async function PredictionsPage({
                   <span className="font-semibold text-green-400 transition group-hover:text-green-300">
                     🔮 View Prediction →
                   </span>
+
                 </div>
               </Link>
             ))}

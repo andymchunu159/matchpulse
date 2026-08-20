@@ -1176,53 +1176,6 @@ function logResearchQuality(
     }
   }
 
-  console.log(
-    "========== RESEARCH QUALITY ==========",
-  );
-
-  console.log(
-    `Total selected sources: ${sources.length}`,
-  );
-
-  console.log(
-    `Official: ${counts.official}`,
-  );
-
-  console.log(
-    `Statistics: ${counts.statistics}`,
-  );
-
-  console.log(
-    `Major news: ${counts.majorNews}`,
-  );
-
-  console.log(
-    `Sports media: ${counts.sportsMedia}`,
-  );
-
-  console.log(
-    `Football data: ${counts.footballData}`,
-  );
-
-  console.log(
-    `Other: ${counts.other}`,
-  );
-
-  console.log(
-    `High quality: ${counts.high}`,
-  );
-
-  console.log(
-    `Medium quality: ${counts.medium}`,
-  );
-
-  console.log(
-    `Low quality: ${counts.low}`,
-  );
-
-  console.log(
-    "======================================",
-  );
 }
 
 /* ============================================================
@@ -1244,38 +1197,6 @@ export async function researchPrediction(
 
   const primaryQuery =
     buildPrimaryQuery(match);
-
-  console.log(
-    "========== TAVILY RESEARCH START ==========",
-  );
-
-  console.log(
-    `Researching: ${match.homeTeam} vs ${match.awayTeam}`,
-  );
-
-  console.log(
-    `Competition: ${match.competition}`,
-  );
-
-  console.log(
-    `Fixture date: ${match.fixtureDate}`,
-  );
-
-  console.log(
-    `Season: ${
-      getSeasonLabel(
-        match.fixtureDate,
-      ) || "Unknown"
-    }`,
-  );
-
-  console.log(
-    "Primary research query:",
-  );
-
-  console.log(
-    primaryQuery,
-  );
 
   const startedAt =
     Date.now();
@@ -1300,12 +1221,6 @@ export async function researchPrediction(
       "Tavily research request failed.",
     );
   }
-
-  console.log(
-    `Primary Tavily request completed in ${
-      Date.now() - startedAt
-    }ms`,
-  );
 
   /*
    * ==========================================================
@@ -1361,14 +1276,6 @@ export async function researchPrediction(
       ) {
         break;
       }
-
-      console.log(
-        "========== TAVILY FALLBACK ==========",
-      );
-
-      console.log(
-        fallbackQuery,
-      );
 
       try {
         const fallbackData =
@@ -1438,62 +1345,11 @@ export async function researchPrediction(
    * ==========================================================
    */
 
-  console.log(
-    "========== TAVILY SOURCES ==========",
-  );
-
-  console.log(
-    `Selected sources: ${selected.length}`,
-  );
-
   selected.forEach(
     (source, index) => {
-      console.log(
-        `SOURCE ${index + 1}:`,
-      );
-
-      console.log(
-        `Title: ${source.title}`,
-      );
-
-      console.log(
-        `Domain: ${source.domain}`,
-      );
-
-      console.log(
-        `Type: ${source.sourceType}`,
-      );
-
-      console.log(
-        `Quality: ${source.quality}`,
-      );
-
-      console.log(
-        `Relevance: ${source.relevance}`,
-      );
-
-      console.log(
-        `URL: ${source.url}`,
-      );
-
-      console.log(
-        `Score: ${
-          source.score ?? "N/A"
-        }`,
-      );
-
-      console.log(
-        "------------------------------------",
-      );
+/*=============================================================
+*/
     },
-  );
-
-  console.log(
-    "====================================",
-  );
-
-  console.log(
-    "========== TAVILY RESEARCH COMPLETE ==========",
   );
 
   /*

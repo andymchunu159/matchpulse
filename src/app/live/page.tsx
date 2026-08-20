@@ -37,7 +37,7 @@ export default function LivePage() {
   useEffect(() => {
     loadMatches();
 
-    const interval = setInterval(loadMatches, 30000);
+    const interval = setInterval(loadMatches, 120000);
 
     return () => clearInterval(interval);
   }, []);

@@ -181,9 +181,6 @@ export default function PredictionDetails({
             AI Prediction
           </h2>
 
-          <span className="rounded-full bg-green-500/10 px-3 py-1 text-xs font-medium text-green-400">
-            {cached ? "Cached" : "Fresh"}
-          </span>
         </div>
 
         <div className="mt-6 text-center">

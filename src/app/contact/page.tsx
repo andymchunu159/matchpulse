@@ -4,9 +4,10 @@ import {
   Mail,
   ArrowLeft,
   MapPin,
-  Send,
   UserRound,
 } from "lucide-react";
+
+import ContactForm from "./ContactForm";
 
 export const metadata = {
   title: "Contact",
@@ -52,6 +53,7 @@ export default function ContactPage() {
             </div>
 
             <div>
+
               <h1 className="text-4xl font-black tracking-tight text-white">
                 Contact
               </h1>
@@ -59,6 +61,7 @@ export default function ContactPage() {
               <p className="mt-1 text-sm text-zinc-500">
                 MatchPulse
               </p>
+
             </div>
 
           </div>
@@ -101,16 +104,8 @@ export default function ContactPage() {
 
             <div className="relative mx-auto mt-8 h-44 w-44 overflow-hidden rounded-3xl border border-white/10 bg-zinc-800 shadow-2xl shadow-black/30">
 
-              {/* ==================================================
-                  PHOTO PLACEHOLDER
-
-                  Replace locally with:
-
-                  public/images/andile-placeholder.jpg
-                  ================================================== */}
-
               <Image
-                src="/images/andile-placeholder.jpg"
+                src="/images/creator-photo.jpg"
                 alt="Andile Mchunu"
                 fill
                 className="object-cover"
@@ -195,10 +190,12 @@ export default function ContactPage() {
             <div>
 
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-green-500/20 bg-green-500/10">
+
                 <Mail
                   size={22}
                   className="text-green-400"
                 />
+
               </div>
 
               <h2 className="mt-6 text-2xl font-black tracking-tight text-white">
@@ -212,121 +209,11 @@ export default function ContactPage() {
 
             </div>
 
-            {/* Form */}
+            {/* ==================================================
+                Client Contact Form
+                ================================================== */}
 
-            <form
-              action="/api/contact"
-              method="POST"
-              className="mt-8 space-y-5"
-            >
-
-              {/* Name */}
-
-              <div>
-
-                <label
-                  htmlFor="name"
-                  className="mb-2 block text-sm font-medium text-zinc-300"
-                >
-                  Name
-                </label>
-
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  autoComplete="name"
-                  placeholder="Your name"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition-all placeholder:text-zinc-600 focus:border-green-500/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-green-500/10"
-                />
-
-              </div>
-
-              {/* Email */}
-
-              <div>
-
-                <label
-                  htmlFor="email"
-                  className="mb-2 block text-sm font-medium text-zinc-300"
-                >
-                  Email
-                </label>
-
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition-all placeholder:text-zinc-600 focus:border-green-500/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-green-500/10"
-                />
-
-              </div>
-
-              {/* Subject */}
-
-              <div>
-
-                <label
-                  htmlFor="subject"
-                  className="mb-2 block text-sm font-medium text-zinc-300"
-                >
-                  Subject
-                </label>
-
-                <input
-                  id="subject"
-                  name="subject"
-                  type="text"
-                  required
-                  placeholder="What's this about?"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-zinc-600 focus:border-green-500/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-green-500/10"
-                />
-
-              </div>
-
-              {/* Message */}
-
-              <div>
-
-                <label
-                  htmlFor="message"
-                  className="mb-2 block text-sm font-medium text-zinc-300"
-                >
-                  Message
-                </label>
-
-                <textarea
-                  id="message"
-                  name="message"
-                  required
-                  rows={6}
-                  placeholder="Write your message..."
-                  className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-6 text-white outline-none transition-all placeholder:text-zinc-600 focus:border-green-500/60 focus:bg-white/[0.05] focus:ring-2 focus:ring-green-500/10"
-                />
-
-              </div>
-
-              {/* Submit */}
-
-              <button
-                type="submit"
-                className="group flex w-full items-center justify-center gap-3 rounded-xl bg-green-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-green-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-green-500 hover:shadow-green-500/20 active:translate-y-0"
-              >
-
-                <Send
-                  size={17}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-
-                Send Message
-
-              </button>
-
-            </form>
+            <ContactForm />
 
           </div>
         </section>

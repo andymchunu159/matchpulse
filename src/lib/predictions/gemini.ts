@@ -1554,21 +1554,6 @@ Return ONLY valid JSON matching the original schema.
 export async function generatePrediction(
   match: PredictionMatchInput,
 ): Promise<Prediction> {
-  console.log(
-    "========== MATCHPULSE PREDICTION START ==========",
-  );
-
-  console.log(
-    `Fixture: ${match.homeTeam} vs ${match.awayTeam}`,
-  );
-
-  console.log(
-    `Competition: ${match.competition}`,
-  );
-
-  console.log(
-    `Date: ${match.fixtureDate}`,
-  );
 
   /**
    * ----------------------------------------------------------
@@ -1601,22 +1586,6 @@ export async function generatePrediction(
       research,
     );
 
-  console.log(
-    "========== RESEARCH QUALITY ==========",
-  );
-
-  console.log(
-    JSON.stringify(
-      researchQuality,
-      null,
-      2,
-    ),
-  );
-
-  console.log(
-    "========== TAVILY RESEARCH COMPLETE ==========",
-  );
-
   /**
    * ----------------------------------------------------------
    * STEP 2 — GEMINI
@@ -1632,14 +1601,6 @@ export async function generatePrediction(
       research,
     );
 
-  console.log(
-    "========== GEMINI PREDICTION START ==========",
-  );
-
-  console.log(
-    `Gemini model: ${GEMINI_MODEL}`,
-  );
-
   /**
    * ----------------------------------------------------------
    * STEP 3 — FIRST GEMINI PASS
@@ -1652,16 +1613,6 @@ export async function generatePrediction(
       prompt,
       GEMINI_MODEL,
     );
-
-  console.log(
-    "========== GEMINI RAW RESPONSE ==========",
-  );
-
-  console.log(text);
-
-  console.log(
-    "==========================================",
-  );
 
   /**
    * ----------------------------------------------------------
@@ -1686,10 +1637,6 @@ export async function generatePrediction(
       parsed,
     );
 
-  console.log(
-    "========== STRUCTURAL VALIDATION PASSED ==========",
-  );
-
   /**
    * ----------------------------------------------------------
    * STEP 6 — QUALITY GATE
@@ -1700,18 +1647,6 @@ export async function generatePrediction(
     evaluateAnalysisQuality(
       prediction,
     );
-
-  console.log(
-    "========== ANALYSIS QUALITY ==========",
-  );
-
-  console.log(
-    JSON.stringify(
-      quality,
-      null,
-      2,
-    ),
-  );
 
   /**
    * ----------------------------------------------------------
@@ -1724,13 +1659,6 @@ export async function generatePrediction(
       MINIMUM_ACCEPTABLE_QUALITY &&
     research.sources.length > 0
   ) {
-    console.log(
-      "========== QUALITY GATE FAILED ==========",
-    );
-
-    console.log(
-      "Running Gemini analytical repair pass...",
-    );
 
     prediction =
       await repairPrediction(
@@ -1741,9 +1669,6 @@ export async function generatePrediction(
         quality.issues,
       );
 
-    console.log(
-      "========== REPAIR PASS COMPLETE ==========",
-    );
   }
 
   /**
@@ -1767,22 +1692,6 @@ export async function generatePrediction(
 
   validateMostLikelyScore(
     prediction,
-  );
-
-  console.log(
-    "========== PREDICTION VALIDATION PASSED ==========",
-  );
-
-  console.log(
-    JSON.stringify(
-      prediction,
-      null,
-      2,
-    ),
-  );
-
-  console.log(
-    "==================================================",
   );
 
   return prediction;

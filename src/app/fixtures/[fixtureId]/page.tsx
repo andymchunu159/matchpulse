@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 import MatchHero from "@/components/match/MatchHero";
 import MatchTabs from "@/components/match/MatchTabs";
@@ -32,7 +34,7 @@ export default async function FixtureDetailsPage({
 
   const standings = await getStandings(
     match.fixture.league.id,
-    match.fixture.league.season
+    match.fixture.league.season,
   );
 
   const fixtureStatus =
@@ -41,23 +43,79 @@ export default async function FixtureDetailsPage({
   const predictionAvailable =
     fixtureStatus === "NS";
 
+  // ============================================================
+  // AUTHENTICATION
+  // ============================================================
+
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(
+              ({ name, value, options }) => {
+                cookieStore.set(
+                  name,
+                  value,
+                  options,
+                );
+              },
+            );
+          } catch {
+            // Cookie writes may not be available
+            // in some Server Component contexts.
+            // Proxy handles session refreshes.
+          }
+        },
+      },
+    },
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isLoggedIn = !!user;
+
+  // ============================================================
+  // PREDICTION ACCESS
+  // ============================================================
+
+  const canAccessPrediction =
+    predictionAvailable && isLoggedIn;
+
   return (
     <main className="container mx-auto space-y-6 py-8">
       <MatchHero fixture={match.fixture} />
 
       {/* AI Prediction */}
       <div className="flex justify-center">
-        {predictionAvailable ? (
+        {canAccessPrediction ? (
           <Link
             href={`/predictions/${fixtureId}`}
             className="inline-flex items-center gap-2 rounded-xl bg-green-500 px-6 py-3 font-semibold text-black transition hover:bg-green-400"
           >
             🔮 AI Prediction
           </Link>
-        ) : (
+        ) : !predictionAvailable ? (
           <div className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl bg-zinc-800 px-6 py-3 font-semibold text-zinc-500">
             🔒 Prediction Unavailable
           </div>
+        ) : (
+          <Link
+            href={`/login?redirectTo=/fixtures/${fixtureId}`}
+            className="inline-flex items-center gap-2 rounded-xl bg-zinc-800 px-6 py-3 font-semibold text-zinc-300 transition hover:bg-zinc-700 hover:text-white"
+          >
+            🔒 Login to Predict
+          </Link>
         )}
       </div>
 
@@ -88,8 +146,12 @@ export default async function FixtureDetailsPage({
             content: (
               <LineUpsTab
                 lineups={match.lineups}
-                homeTeamName={match.fixture.teams.home.name}
-                awayTeamName={match.fixture.teams.away.name}
+                homeTeamName={
+                  match.fixture.teams.home.name
+                }
+                awayTeamName={
+                  match.fixture.teams.away.name
+                }
               />
             ),
           },
@@ -99,9 +161,15 @@ export default async function FixtureDetailsPage({
             content: (
               <StandingsTab
                 standings={standings}
-                leagueId={match.fixture.league.id}
-                season={match.fixture.league.season}
-                leagueName={match.fixture.league.name}
+                leagueId={
+                  match.fixture.league.id
+                }
+                season={
+                  match.fixture.league.season
+                }
+                leagueName={
+                  match.fixture.league.name
+                }
               />
             ),
           },
@@ -111,10 +179,18 @@ export default async function FixtureDetailsPage({
             content: (
               <H2HTab
                 h2h={match.h2h}
-                homeTeamId={match.fixture.teams.home.id}
-                awayTeamId={match.fixture.teams.away.id}
-                homeTeamName={match.fixture.teams.home.name}
-                awayTeamName={match.fixture.teams.away.name}
+                homeTeamId={
+                  match.fixture.teams.home.id
+                }
+                awayTeamId={
+                  match.fixture.teams.away.id
+                }
+                homeTeamName={
+                  match.fixture.teams.home.name
+                }
+                awayTeamName={
+                  match.fixture.teams.away.name
+                }
               />
             ),
           },

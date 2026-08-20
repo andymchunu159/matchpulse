@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Menu, Bell, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 import { NAV_ITEMS } from "@/constants/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,46 +13,110 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import MatchPulseLogo from "@/components/ui/match-pulse-logo";
+import { createClient } from "@/lib/supabase/client";
 
 export default function Navbar() {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function checkSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (mounted) {
+        setIsLoggedIn(!!session);
+      }
+    }
+
+    checkSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setIsLoggedIn(!!session);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  async function handleLogout() {
+    try {
+      setIsLoggingOut(true);
+
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Logout error:", error);
+        return;
+      }
+
+      setIsLoggedIn(false);
+
+      router.refresh();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-zinc-950/70 backdrop-blur-2xl supports-[backdrop-filter]:bg-zinc-950/60">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
 
         {/* Logo */}
-{/* Logo */}
-<Link
-  href="/"
-  className="group flex items-center gap-4"
->
-  <MatchPulseLogo />
+        <Link
+          href="/"
+          className="group flex items-center gap-4"
+        >
+          <MatchPulseLogo />
 
-  <div className="space-y-1">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-black tracking-[-0.05em] text-white transition-colors duration-300 group-hover:text-zinc-100">
+              Match<span className="text-green-400">Pulse</span>
+            </h1>
 
-    <h1 className="text-2xl font-black tracking-[-0.05em] text-white transition-colors duration-300 group-hover:text-zinc-100">
-      Match<span className="text-green-400">Pulse</span>
-    </h1>
+            <p className="text-[11px] font-medium tracking-[0.28em] text-zinc-500 transition-colors duration-300 group-hover:text-zinc-400">
+              Live Football Intelligence
+            </p>
+          </div>
+        </Link>
 
-    <p className="text-[11px] font-medium tracking-[0.28em] text-zinc-500 transition-colors duration-300 group-hover:text-zinc-400">
-      Live Football Intelligence
-    </p>
-
-  </div>
-
-</Link>
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-2 md:flex">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="group relative rounded-lg px-4 py-2 text-sm font-medium text-zinc-300 transition-all duration-300 hover:bg-white/5 hover:text-white"
-            >
-              {item.title}
+          {NAV_ITEMS.map((item) => {
+            const isPredictions =
+              item.href === "/predictions";
 
-              <span className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-green-500 transition-all duration-300 group-hover:w-8" />
-            </Link>
-          ))}
+            const destination =
+              isPredictions && !isLoggedIn
+                ? "/login?next=/predictions"
+                : item.href;
+
+            return (
+              <Link
+                key={item.href}
+                href={destination}
+                className="group relative rounded-lg px-4 py-2 text-sm font-medium text-zinc-300 transition-all duration-300 hover:bg-white/5 hover:text-white"
+              >
+                {item.title}
+
+                <span className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-green-500 transition-all duration-300 group-hover:w-8" />
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Right */}
@@ -73,18 +140,32 @@ export default function Navbar() {
             <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-green-500 ring-2 ring-zinc-950" />
           </Button>
 
-          <Button className="ml-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-6 font-semibold text-white shadow-lg shadow-green-500/25 transition-all duration-300 hover:scale-105 hover:from-green-400 hover:to-emerald-500 hover:shadow-green-500/50">
-            Login
-          </Button>
+          {/* Authentication */}
+          {isLoggedIn ? (
+            <Button
+              type="button"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="ml-2 rounded-xl bg-red-600 px-6 font-semibold text-white shadow-lg shadow-red-600/25 transition-all duration-300 hover:scale-105 hover:bg-red-500 hover:shadow-red-500/40 disabled:cursor-not-allowed disabled:scale-100 disabled:opacity-60"
+            >
+              {isLoggingOut ? "Logging out..." : "Logout"}
+            </Button>
+          ) : (
+            <Link href="/login">
+              <Button className="ml-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-6 font-semibold text-white shadow-lg shadow-green-500/25 transition-all duration-300 hover:scale-105 hover:from-green-400 hover:to-emerald-500 hover:shadow-green-500/50">
+                Login
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile */}
         <Sheet>
-<SheetTrigger
-  className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-300 transition-all hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 md:hidden"
->
-  <Menu className="h-6 w-6" />
-</SheetTrigger>
+          <SheetTrigger
+            className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-300 transition-all hover:border-green-500/40 hover:bg-green-500/10 hover:text-green-400 md:hidden"
+          >
+            <Menu className="h-6 w-6" />
+          </SheetTrigger>
 
           <SheetContent
             side="left"
@@ -105,21 +186,45 @@ export default function Navbar() {
             </div>
 
             <nav className="mt-8 flex flex-col gap-2">
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="rounded-xl px-4 py-3 text-base font-medium text-zinc-300 transition-all hover:bg-green-500/10 hover:text-green-400"
-                >
-                  {item.title}
-                </Link>
-              ))}
+              {NAV_ITEMS.map((item) => {
+                const isPredictions =
+                  item.href === "/predictions";
+
+                const destination =
+                  isPredictions && !isLoggedIn
+                    ? "/login?next=/predictions"
+                    : item.href;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={destination}
+                    className="rounded-xl px-4 py-3 text-base font-medium text-zinc-300 transition-all hover:bg-green-500/10 hover:text-green-400"
+                  >
+                    {item.title}
+                  </Link>
+                );
+              })}
             </nav>
 
             <div className="mt-10">
-              <Button className="w-full rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 font-semibold">
-                Login
-              </Button>
+              {/* Authentication */}
+              {isLoggedIn ? (
+                <Button
+                  type="button"
+                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className="w-full rounded-xl bg-red-600 font-semibold text-white transition-all hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isLoggingOut ? "Logging out..." : "Logout"}
+                </Button>
+              ) : (
+                <Link href="/login">
+                  <Button className="w-full rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 font-semibold">
+                    Login
+                  </Button>
+                </Link>
+              )}
             </div>
           </SheetContent>
         </Sheet>

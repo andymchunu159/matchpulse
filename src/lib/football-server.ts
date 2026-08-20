@@ -52,11 +52,17 @@ export async function getFixtures(
 export async function getUpcomingFixtures(
   date: string
 ): Promise<FixtureResponse[]> {
-  const fixtures = await getFixtures(date);
+  const response =
+    await footballFetch<ApiResponse<FixtureResponse[]>>(
+      `/fixtures?date=${date}&status=NS`
+    );
 
-  return fixtures.filter(
+  const now = Math.floor(Date.now() / 1000);
+
+  return (response.response ?? []).filter(
     (fixture) =>
-      fixture.fixture.status.short === "NS"
+      fixture.fixture.status.short === "NS" &&
+      fixture.fixture.timestamp > now
   );
 }
 

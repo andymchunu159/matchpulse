@@ -10,6 +10,8 @@ import {
   cachePrediction,
 } from "@/lib/predictions/cache";
 
+import { createClient } from "@/lib/supabase/server-auth";
+
 const predictionRequestSchema = z.object({
   homeTeam: z.string().trim().min(1),
   awayTeam: z.string().trim().min(1),
@@ -34,9 +36,39 @@ function isServiceUnavailableError(error: unknown): boolean {
 
 export async function POST(request: Request) {
   try {
+    // --------------------------------------------------------
+    // 0. REQUIRE AUTHENTICATED USER
+    // --------------------------------------------------------
+
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Authentication required.",
+          message:
+            "You must be logged in to access MatchPulse predictions.",
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+
+    // --------------------------------------------------------
+    // 1. VALIDATE REQUEST
+    // --------------------------------------------------------
+
     const body = await request.json();
 
-    const parsedRequest = predictionRequestSchema.safeParse(body);
+    const parsedRequest =
+      predictionRequestSchema.safeParse(body);
 
     if (!parsedRequest.success) {
       return NextResponse.json(
@@ -58,21 +90,18 @@ export async function POST(request: Request) {
     } = parsedRequest.data;
 
     // --------------------------------------------------------
-    // 1. Check Supabase prediction cache
+    // 2. CHECK SUPABASE PREDICTION CACHE
     // --------------------------------------------------------
 
-    const cachedPrediction = await getCachedPrediction(
-      homeTeam,
-      awayTeam,
-      competition,
-      fixtureDate,
-    );
-
-    if (cachedPrediction) {
-      console.log(
-        `Prediction cache HIT: ${homeTeam} vs ${awayTeam}`,
+    const cachedPrediction =
+      await getCachedPrediction(
+        homeTeam,
+        awayTeam,
+        competition,
+        fixtureDate,
       );
 
+    if (cachedPrediction) {
       return NextResponse.json(
         {
           success: true,
@@ -85,12 +114,8 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log(
-      `Prediction cache MISS: ${homeTeam} vs ${awayTeam}`,
-    );
-
     // --------------------------------------------------------
-    // 2. Generate fresh prediction
+    // 3. GENERATE FRESH PREDICTION
     // --------------------------------------------------------
 
     const prediction = await generatePrediction({
@@ -101,7 +126,7 @@ export async function POST(request: Request) {
     });
 
     // --------------------------------------------------------
-    // 3. Save prediction to Supabase cache
+    // 4. SAVE PREDICTION TO SUPABASE CACHE
     // --------------------------------------------------------
 
     await cachePrediction(
@@ -113,7 +138,7 @@ export async function POST(request: Request) {
     );
 
     // --------------------------------------------------------
-    // 4. Return fresh prediction
+    // 5. RETURN FRESH PREDICTION
     // --------------------------------------------------------
 
     return NextResponse.json(
@@ -127,13 +152,21 @@ export async function POST(request: Request) {
       },
     );
   } catch (error) {
-    console.error("Prediction API error:", error);
+    console.error(
+      "Prediction API error:",
+      error,
+    );
+
+    // --------------------------------------------------------
+    // GEMINI / AI SERVICE UNAVAILABLE
+    // --------------------------------------------------------
 
     if (isServiceUnavailableError(error)) {
       return NextResponse.json(
         {
           success: false,
-          error: "Prediction service temporarily unavailable.",
+          error:
+            "Prediction service temporarily unavailable.",
           message:
             "Our prediction engine is currently experiencing high demand. Please try again shortly.",
         },
@@ -143,10 +176,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // --------------------------------------------------------
+    // GENERAL ERROR
+    // --------------------------------------------------------
+
     return NextResponse.json(
       {
         success: false,
-        error: "Prediction service unavailable.",
+        error:
+          "Prediction service unavailable.",
         message:
           "We were unable to generate a prediction right now. Please try again shortly.",
       },
